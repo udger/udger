@@ -1,3 +1,4 @@
+// the udger package allow you to load in memory and lookup the user agent database to extract value from the provided user agent
 package udger
 
 import (
@@ -10,6 +11,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// create a new instance of Udger and load all the database in memory to allow fast lookup
+// you need to pass the sqlite database in parameter
 func New(dbPath string) (*Udger, error) {
 	u := &Udger{
 		Browsers:     make(map[int]Browser),
@@ -38,6 +41,7 @@ func New(dbPath string) (*Udger, error) {
 	return u, nil
 }
 
+// lookup one user agent and return a Info struct who contains all the metadata possible for the UA.
 func (this *Udger) Lookup(ua string) (*Info, error) {
 	info := &Info{}
 
@@ -86,7 +90,7 @@ func (this *Udger) cleanRegex(r string) string {
 	return r
 }
 
-func (this *Udger) findData(ua string, data []RexData) (int, error) {
+func (this *Udger) findData(ua string, data []rexData) (int, error) {
 	for i := 0; i < len(data); i++ {
 		data[i].Regex = this.cleanRegex(data[i].Regex)
 		r, err := pcre.Compile(data[i].Regex, pcre.CASELESS)
@@ -110,7 +114,7 @@ func (this *Udger) init() error {
 		return err
 	}
 	for rows.Next() {
-		var d RexData
+		var d rexData
 		rows.Scan(&d.Id, &d.Regex)
 		this.RexBrowsers = append(this.RexBrowsers, d)
 	}
@@ -121,7 +125,7 @@ func (this *Udger) init() error {
 		return err
 	}
 	for rows.Next() {
-		var d RexData
+		var d rexData
 		rows.Scan(&d.Id, &d.Regex)
 		this.RexDevices = append(this.RexDevices, d)
 	}
@@ -132,7 +136,7 @@ func (this *Udger) init() error {
 		return err
 	}
 	for rows.Next() {
-		var d RexData
+		var d rexData
 		rows.Scan(&d.Id, &d.Regex)
 		this.RexOS = append(this.RexOS, d)
 	}
