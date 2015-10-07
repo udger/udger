@@ -19,10 +19,6 @@ func main() {
 		os.Exit(-1)
 	}
 
-	fmt.Println(len(u.RexBrowsers), "browsers regex loaded")
-	fmt.Println(len(u.RexOS), "os regex loaded")
-	fmt.Println(len(u.RexDevices), "devices regex loaded")
-	fmt.Println("")
 	fmt.Println(len(u.Browsers), "browsers loaded")
 	fmt.Println(len(u.OS), "OS loaded")
 	fmt.Println(len(u.Devices), "device types loaded")

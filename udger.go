@@ -45,7 +45,7 @@ func New(dbPath string) (*Udger, error) {
 func (this *Udger) Lookup(ua string) (*Info, error) {
 	info := &Info{}
 
-	browserId, err := this.findData(ua, this.RexBrowsers)
+	browserId, err := this.findData(ua, this.rexBrowsers)
 	if err != nil {
 		return nil, err
 	}
@@ -56,14 +56,14 @@ func (this *Udger) Lookup(ua string) (*Info, error) {
 	if val, ok := this.browserOS[browserId]; ok {
 		info.OS = this.OS[val]
 	} else {
-		osId, err := this.findData(ua, this.RexOS)
+		osId, err := this.findData(ua, this.rexOS)
 		if err != nil {
 			return nil, err
 		}
 		info.OS = this.OS[osId]
 	}
 
-	deviceId, err := this.findData(ua, this.RexDevices)
+	deviceId, err := this.findData(ua, this.rexDevices)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (this *Udger) init() error {
 	for rows.Next() {
 		var d rexData
 		rows.Scan(&d.Id, &d.Regex)
-		this.RexBrowsers = append(this.RexBrowsers, d)
+		this.rexBrowsers = append(this.rexBrowsers, d)
 	}
 	rows.Close()
 
@@ -127,7 +127,7 @@ func (this *Udger) init() error {
 	for rows.Next() {
 		var d rexData
 		rows.Scan(&d.Id, &d.Regex)
-		this.RexDevices = append(this.RexDevices, d)
+		this.rexDevices = append(this.rexDevices, d)
 	}
 	rows.Close()
 
@@ -138,7 +138,7 @@ func (this *Udger) init() error {
 	for rows.Next() {
 		var d rexData
 		rows.Scan(&d.Id, &d.Regex)
-		this.RexOS = append(this.RexOS, d)
+		this.rexOS = append(this.rexOS, d)
 	}
 	rows.Close()
 
