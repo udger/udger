@@ -46,7 +46,7 @@ type OS struct {
 	Name    string `json:"name"`
 	Family  string `json:"family"`
 	Icon    string `json:"icon"`
-	Company string `json:"compny"`
+	Company string `json:"company"`
 }
 
 // Device contains all the information about the device type
