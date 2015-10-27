@@ -69,10 +69,16 @@ func (this *Udger) Lookup(ua string) (*Info, error) {
 	}
 	if val, ok := this.Devices[deviceId]; ok {
 		info.Device = val
-	} else if info.Browser.typ == 3 { // if browser if mobile, we can guess its a mobile
+	} else if info.Browser.typ == 3 { // if browser is mobile, we can guess its a mobile
 		info.Device = Device{
 			Name: "Smartphone",
 			Icon: "phone.png",
+		}
+	} else {
+		//nothing so personal computer
+		info.Device = Device{
+			Name: "Personal computer",
+			Icon: "desktop.png",
 		}
 	}
 
