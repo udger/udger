@@ -45,25 +45,27 @@ func New(dbPath string) (*Udger, error) {
 func (this *Udger) Lookup(ua string) (*Info, error) {
 	info := &Info{}
 
-	browserId, err := this.findData(ua, this.rexBrowsers)
+	browserId, version, err := this.findData(ua, this.rexBrowsers)
 	if err != nil {
 		return nil, err
 	}
 
 	info.Browser = this.Browsers[browserId]
+	info.Browser.Name = info.Browser.Family + " " + version
+	info.Browser.Version = version
 	info.Browser.Type = this.browserTypes[info.Browser.typ]
 
 	if val, ok := this.browserOS[browserId]; ok {
 		info.OS = this.OS[val]
 	} else {
-		osId, err := this.findData(ua, this.rexOS)
+		osId, _, err := this.findData(ua, this.rexOS)
 		if err != nil {
 			return nil, err
 		}
 		info.OS = this.OS[osId]
 	}
 
-	deviceId, err := this.findData(ua, this.rexDevices)
+	deviceId, _, err := this.findData(ua, this.rexDevices)
 	if err != nil {
 		return nil, err
 	}
@@ -73,6 +75,11 @@ func (this *Udger) Lookup(ua string) (*Info, error) {
 		info.Device = Device{
 			Name: "Smartphone",
 			Icon: "phone.png",
+		}
+	} else if info.Browser.typ == 5 || info.Browser.typ == 10 || info.Browser.typ == 20 || info.Browser.typ == 50 {
+		info.Device = Device{
+			Name: "Other",
+			Icon: "other.png",
 		}
 	} else {
 		//nothing so personal computer
@@ -96,22 +103,33 @@ func (this *Udger) cleanRegex(r string) string {
 	return r
 }
 
-func (this *Udger) findData(ua string, data []rexData) (int, error) {
+func (this *Udger) findData(ua string, data []rexData) (idx int, value string, err error) {
 	for i := 0; i < len(data); i++ {
 		data[i].Regex = this.cleanRegex(data[i].Regex)
 		r, err := pcre.Compile(data[i].Regex, pcre.CASELESS)
 		if err != nil {
-			return -1, errors.New(err.String())
+			return -1, "", errors.New(err.String())
 		}
 		matcher := r.MatcherString(ua, 0)
 		match := matcher.MatchString(ua, 0)
 		if !match {
 			continue
 		}
-		return data[i].Id, nil
+
+		if matcher.Present(1) {
+			defer func() {
+				err = nil
+				value = ""
+				idx = data[i].Id
+				recover()
+			}()
+			return data[i].Id, matcher.GroupString(1), nil
+		}
+
+		return data[i].Id, "", nil
 	}
 
-	return -1, nil
+	return -1, "", nil
 }
 
 func (this *Udger) init() error {
@@ -155,7 +173,7 @@ func (this *Udger) init() error {
 	for rows.Next() {
 		var d Browser
 		var id int
-		rows.Scan(&id, &d.typ, &d.Name, &d.Engine, &d.Company, &d.Icon)
+		rows.Scan(&id, &d.typ, &d.Family, &d.Engine, &d.Company, &d.Icon)
 		this.Browsers[id] = d
 	}
 	rows.Close()

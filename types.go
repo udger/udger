@@ -29,6 +29,8 @@ type Info struct {
 // Browser contains information about the browser type, engine and off course it's name
 type Browser struct {
 	Name    string `json:"name"`
+	Family  string `json:"family"`
+	Version string `json:"version"`
 	Engine  string `json:"engine"`
 	typ     int
 	Type    string `json:"type"`
