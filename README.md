@@ -4,10 +4,10 @@ this package reads in memory all the database from [udger](https://udger.com) an
 
 # install
 ```
-go get github.com/stumpyfr/udger
+go get github.com/udger/udger
 ```
 # Documenation
-For detailed documentation and basic usage examples, please see the package documentation at https://godoc.org/github.com/stumpyfr/udger
+For detailed documentation and basic usage examples, please see the package documentation at https://godoc.org/github.com/udger/udger
 
 ## roadmap
 
