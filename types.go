@@ -39,7 +39,7 @@ type Browser struct {
 }
 
 type rexData struct {
-	Id    int
+	ID    int
 	Regex string
 }
 

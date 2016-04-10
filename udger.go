@@ -4,6 +4,7 @@ package udger
 import (
 	"database/sql"
 	"errors"
+	//"fmt"
 	"os"
 	"strings"
 
@@ -45,7 +46,7 @@ func New(dbPath string) (*Udger, error) {
 func (this *Udger) Lookup(ua string) (*Info, error) {
 	info := &Info{}
 
-	browserId, version, err := this.findData(ua, this.rexBrowsers)
+	browserId, version, err := this.findData(ua, this.rexBrowsers, true)
 	if err != nil {
 		return nil, err
 	}
@@ -58,14 +59,14 @@ func (this *Udger) Lookup(ua string) (*Info, error) {
 	if val, ok := this.browserOS[browserId]; ok {
 		info.OS = this.OS[val]
 	} else {
-		osId, _, err := this.findData(ua, this.rexOS)
+		osId, _, err := this.findData(ua, this.rexOS, false)
 		if err != nil {
 			return nil, err
 		}
 		info.OS = this.OS[osId]
 	}
 
-	deviceId, _, err := this.findData(ua, this.rexDevices)
+	deviceId, _, err := this.findData(ua, this.rexDevices, false)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +104,7 @@ func (this *Udger) cleanRegex(r string) string {
 	return r
 }
 
-func (this *Udger) findData(ua string, data []rexData) (idx int, value string, err error) {
+func (this *Udger) findData(ua string, data []rexData, withVersion bool) (idx int, value string, err error) {
 	for i := 0; i < len(data); i++ {
 		data[i].Regex = this.cleanRegex(data[i].Regex)
 		r, err := pcre.Compile(data[i].Regex, pcre.CASELESS)
@@ -116,57 +117,51 @@ func (this *Udger) findData(ua string, data []rexData) (idx int, value string, e
 			continue
 		}
 
-		if matcher.Present(1) {
-			defer func() {
-				err = nil
-				value = ""
-				idx = data[i].Id
-				recover()
-			}()
-			return data[i].Id, matcher.GroupString(1), nil
+		if withVersion && matcher.Present(1) {
+			return data[i].ID, matcher.GroupString(1), nil
 		}
 
-		return data[i].Id, "", nil
+		return data[i].ID, "", nil
 	}
 
 	return -1, "", nil
 }
 
 func (this *Udger) init() error {
-	rows, err := this.db.Query("SELECT browser, regstring FROM reg_browser ORDER by sequence ASC")
+	rows, err := this.db.Query("SELECT client_id, regstring FROM udger_client_regex ORDER by sequence ASC")
 	if err != nil {
 		return err
 	}
 	for rows.Next() {
 		var d rexData
-		rows.Scan(&d.Id, &d.Regex)
+		rows.Scan(&d.ID, &d.Regex)
 		this.rexBrowsers = append(this.rexBrowsers, d)
 	}
 	rows.Close()
 
-	rows, err = this.db.Query("SELECT device, regstring FROM reg_device ORDER by sequence ASC")
+	rows, err = this.db.Query("SELECT deviceclass_id, regstring FROM udger_deviceclass_regex ORDER by sequence ASC")
 	if err != nil {
 		return err
 	}
 	for rows.Next() {
 		var d rexData
-		rows.Scan(&d.Id, &d.Regex)
+		rows.Scan(&d.ID, &d.Regex)
 		this.rexDevices = append(this.rexDevices, d)
 	}
 	rows.Close()
 
-	rows, err = this.db.Query("SELECT os, regstring FROM reg_os ORDER by sequence ASC")
+	rows, err = this.db.Query("SELECT os_id, regstring FROM udger_os_regex ORDER by sequence ASC")
 	if err != nil {
 		return err
 	}
 	for rows.Next() {
 		var d rexData
-		rows.Scan(&d.Id, &d.Regex)
+		rows.Scan(&d.ID, &d.Regex)
 		this.rexOS = append(this.rexOS, d)
 	}
 	rows.Close()
 
-	rows, err = this.db.Query("SELECT id,type,name,engine,company,icon FROM c_browser")
+	rows, err = this.db.Query("SELECT id, class_id, name,engine,vendor,icon FROM udger_client_list")
 	if err != nil {
 		return err
 	}
@@ -178,7 +173,7 @@ func (this *Udger) init() error {
 	}
 	rows.Close()
 
-	rows, err = this.db.Query("SELECT id, name, family, company, icon FROM c_os")
+	rows, err = this.db.Query("SELECT id, name, family, vendor, icon FROM udger_os_list")
 	if err != nil {
 		return err
 	}
@@ -190,7 +185,7 @@ func (this *Udger) init() error {
 	}
 	rows.Close()
 
-	rows, err = this.db.Query("SELECT id, name, icon FROM c_device")
+	rows, err = this.db.Query("SELECT id, name, icon FROM udger_deviceclass_list")
 	if err != nil {
 		return err
 	}
@@ -202,7 +197,7 @@ func (this *Udger) init() error {
 	}
 	rows.Close()
 
-	rows, err = this.db.Query("SELECT type, name FROM c_browser_type")
+	rows, err = this.db.Query("SELECT id, client_classification FROM udger_client_class")
 	if err != nil {
 		return err
 	}
@@ -214,7 +209,7 @@ func (this *Udger) init() error {
 	}
 	rows.Close()
 
-	rows, err = this.db.Query("SELECT browser, os FROM c_browser_os")
+	rows, err = this.db.Query("SELECT client_id, os_id FROM udger_client_os_relation")
 	if err != nil {
 		return err
 	}

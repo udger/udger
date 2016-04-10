@@ -1,4 +1,4 @@
-# Udger golang
+# Udger golang (format V3)
 
 this package reads in memory all the database from [udger](https://udger.com) and lets you lookup user agents's metadatas.
 
@@ -6,10 +6,9 @@ this package reads in memory all the database from [udger](https://udger.com) an
 ```
 go get github.com/udger/udger
 ```
-# Documenation
+# Documentation
 For detailed documentation and basic usage examples, please see the package documentation at https://godoc.org/github.com/udger/udger
 
-## roadmap
+# old v2 format
 
-* [ ] hot reload of the database
-* [ ] add the bot ip lookup
+If you still use the previous format of the db (v2), please see the branch `old_format_v2`
