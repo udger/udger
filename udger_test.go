@@ -98,6 +98,30 @@ func TestValidDbName(t *testing.T) {
 					So(info.Browser.Version, ShouldResemble, "9.50")
 				})
 			})
+
+			Convey("test Iphone", func() {
+				info, err := udger.Lookup("Mozilla/5.0 (iPhone; CPU iPhone OS 9_2_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13D15")
+				So(err, ShouldBeNil)
+				So(info, ShouldNotBeNil)
+
+				Convey("test lookup info", func() {
+					So(info.OS.Company, ShouldResemble, "Apple Inc.")
+					So(info.OS.Family, ShouldResemble, "iOS")
+					So(info.OS.Icon, ShouldResemble, "iphone.png")
+					//So(info.OS.Name, ShouldResemble, "iOS 9")
+
+					So(info.Device.Name, ShouldResemble, "Smartphone")
+					So(info.Device.Icon, ShouldResemble, "phone.png")
+
+					So(info.Browser.Company, ShouldResemble, "Apple Inc.")
+					So(info.Browser.Engine, ShouldResemble, "WebKit")
+					So(info.Browser.Family, ShouldResemble, "Safari mobile")
+					So(info.Browser.Icon, ShouldResemble, "safari.png")
+					So(info.Browser.Name, ShouldResemble, "Safari mobile ")
+					So(info.Browser.Type, ShouldResemble, "Mobile browser")
+					So(info.Browser.Version, ShouldResemble, "")
+				})
+			})
 		})
 	})
 }
