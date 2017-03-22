@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/glenn-brown/golang-pkg-pcre/src/pkg/pcre"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/mattn/go-sqlite3"
 )
 
 // New creates a new instance of Udger and load all the database in memory to allow fast lookup
@@ -49,9 +49,10 @@ func (udger *Udger) Lookup(ua string) (*Info, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	info.Browser = udger.Browsers[browserID]
-	info.Browser.Name = info.Browser.Family + " " + version
+	if info.Browser.Name != "" {
+		info.Browser.Name = info.Browser.Family + " " + version
+	}
 	info.Browser.Version = version
 	info.Browser.Type = udger.browserTypes[info.Browser.typ]
 
