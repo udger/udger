@@ -50,7 +50,7 @@ func (udger *Udger) Lookup(ua string) (*Info, error) {
 		return nil, err
 	}
 	info.Browser = udger.Browsers[browserID]
-	if info.Browser.Name != "" {
+	if info.Browser.Family != "" {
 		info.Browser.Name = info.Browser.Family + " " + version
 	}
 	info.Browser.Version = version
