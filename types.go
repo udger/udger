@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/glenn-brown/golang-pkg-pcre/src/pkg/pcre"
 )
 
 // Udger contains the data and exposes the Lookup(ua string) function
@@ -39,8 +40,9 @@ type Browser struct {
 }
 
 type rexData struct {
-	ID    int
-	Regex string
+	ID            int
+	Regex         string
+	RegexCompiled pcre.Regexp
 }
 
 // OS contains all the information about the operating system
