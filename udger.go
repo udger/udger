@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/glenn-brown/golang-pkg-pcre/src/pkg/pcre"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 // New creates a new instance of Udger and load all the database in memory to allow fast lookup
