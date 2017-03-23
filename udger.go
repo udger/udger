@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/glenn-brown/golang-pkg-pcre/src/pkg/pcre"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/mattn/go-sqlite3"
 )
 
 // New creates a new instance of Udger and load all the database in memory to allow fast lookup
@@ -49,9 +49,10 @@ func (udger *Udger) Lookup(ua string) (*Info, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	info.Browser = udger.Browsers[browserID]
-	info.Browser.Name = info.Browser.Family + " " + version
+	if info.Browser.Family != "" {
+		info.Browser.Name = info.Browser.Family + " " + version
+	}
 	info.Browser.Version = version
 	info.Browser.Type = udger.browserTypes[info.Browser.typ]
 
@@ -117,11 +118,7 @@ func (udger *Udger) findDataWithVersion(ua string, data []rexData, withVersion b
 
 func (udger *Udger) findData(ua string, data []rexData, withVersion bool) (idx int, value string, err error) {
 	for i := 0; i < len(data); i++ {
-		data[i].Regex = udger.cleanRegex(data[i].Regex)
-		r, err := pcre.Compile(data[i].Regex, pcre.CASELESS)
-		if err != nil {
-			return -1, "", errors.New(err.String())
-		}
+		r := data[i].RegexCompiled
 		matcher := r.MatcherString(ua, 0)
 		if !matcher.MatchString(ua, 0) {
 			continue
@@ -145,6 +142,12 @@ func (udger *Udger) init() error {
 	for rows.Next() {
 		var d rexData
 		rows.Scan(&d.ID, &d.Regex)
+		d.Regex = udger.cleanRegex(d.Regex)
+		r, err := pcre.Compile(d.Regex, pcre.CASELESS)
+		if err != nil {
+			return errors.New(err.String())
+		}
+		d.RegexCompiled = r
 		udger.rexBrowsers = append(udger.rexBrowsers, d)
 	}
 	rows.Close()
@@ -156,6 +159,12 @@ func (udger *Udger) init() error {
 	for rows.Next() {
 		var d rexData
 		rows.Scan(&d.ID, &d.Regex)
+		d.Regex = udger.cleanRegex(d.Regex)
+		r, err := pcre.Compile(d.Regex, pcre.CASELESS)
+		if err != nil {
+			return errors.New(err.String())
+		}
+		d.RegexCompiled = r
 		udger.rexDevices = append(udger.rexDevices, d)
 	}
 	rows.Close()
@@ -167,6 +176,12 @@ func (udger *Udger) init() error {
 	for rows.Next() {
 		var d rexData
 		rows.Scan(&d.ID, &d.Regex)
+		d.Regex = udger.cleanRegex(d.Regex)
+		r, err := pcre.Compile(d.Regex, pcre.CASELESS)
+		if err != nil {
+			return errors.New(err.String())
+		}
+		d.RegexCompiled = r
 		udger.rexOS = append(udger.rexOS, d)
 	}
 	rows.Close()
